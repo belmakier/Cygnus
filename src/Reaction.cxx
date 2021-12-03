@@ -165,8 +165,8 @@ double Reaction::RutherfordCM(double theta, int part){
 	double ESym = TMath::Sqrt(TMath::Power(Ecm,3./2.) * TMath::Sqrt(Ecm - exE));
 
 	if(part == 3)
-		return TMath::Power(TMath::Sin(TMath::Pi() - theta)/TMath::Sin(theta_lab),2) * 1.29596 * TMath::Power( GetBeamZ() * GetTargetZ() / ESym,2) * 1 / TMath::Power(TMath::Sin(theta/2),4) / TMath::Abs(TMath::Cos((TMath::Pi() - theta) - theta_lab));
-	return TMath::Power(TMath::Sin(theta)/TMath::Sin(theta_lab),2) * 1.29596 * TMath::Power( GetBeamZ() * GetTargetZ() / ESym,2) * 1 / TMath::Power(TMath::Sin(theta/2),4) / TMath::Abs(TMath::Cos(theta - theta_lab));
+		return 1.29596 * TMath::Power( GetBeamZ() * GetTargetZ() / ESym,2) * 1 / TMath::Power(TMath::Sin(theta/2),4);
+	return 1.29596 * TMath::Power( GetBeamZ() * GetTargetZ() / ESym,2) * 1 / TMath::Power(TMath::Sin(theta/2),4);
 
 }
 
@@ -181,8 +181,8 @@ double Reaction::Rutherford(double theta_lab, int part){
 	double ESym = TMath::Sqrt(TMath::Power(Ecm,3./2.) * TMath::Sqrt(Ecm - exE));
 
 	if(part == 3)
-		return TMath::Power(TMath::Sin(TMath::Pi() - theta)/TMath::Sin(theta_lab),2) * 1.29596 * TMath::Power( GetBeamZ() * GetTargetZ() / ESym,2) * 1 / TMath::Power(TMath::Sin(theta/2),4) / TMath::Abs(TMath::Cos((TMath::Pi() - theta) - theta_lab));
-	return TMath::Power(TMath::Sin(theta)/TMath::Sin(theta_lab),2) * 1.29596 * TMath::Power( GetBeamZ() * GetTargetZ() / ESym,2) * 1 / TMath::Power(TMath::Sin(theta/2),4) / TMath::Abs(TMath::Cos(theta - theta_lab));
+		return TMath::Power(TMath::Sin(TMath::Pi() - theta)/TMath::Sin(theta_lab),2) * 1.29596 * TMath::Power( GetBeamZ() * GetTargetZ() / ESym,2) * 1 / TMath::Power(TMath::Sin(theta/2),4);// / TMath::Abs(TMath::Cos((TMath::Pi() - theta) - theta_lab));
+	return TMath::Power(TMath::Sin(theta)/TMath::Sin(theta_lab),2) * 1.29596 * TMath::Power( GetBeamZ() * GetTargetZ() / ESym,2) * 1 / TMath::Power(TMath::Sin(theta/2),4);// / TMath::Abs(TMath::Cos(theta - theta_lab));
 
 }
 

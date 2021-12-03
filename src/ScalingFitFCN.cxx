@@ -3,7 +3,7 @@
 
 double ScalingFitFCN::operator()(const double* par){
 
-	double chisq = 0;
+	double 	chisq = 0;
 
 	double	scaling	= par[0];
 

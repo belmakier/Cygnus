@@ -18,6 +18,8 @@ GOSIASimFitter::GOSIASimFitter()
 
 	verbose		= false;
 
+	chisq		= -1;
+
 }
 
 void GOSIASimFitter::DoFit(const char* method, const char *algorithm){
@@ -62,6 +64,19 @@ void GOSIASimFitter::DoFit(const char* method, const char *algorithm){
 	theFCN.SetupCalculation();
 
 	theFCN.SetLikelihoodFit(fLikelihood);
+
+	size_t	Nexpts = 0;
+	if(exptData_Beam.size() > exptData_Target.size())
+		Nexpts = exptData_Beam.size();
+	else
+		Nexpts = exptData_Target.size();
+
+	if(expt_weights.size() != Nexpts){
+		expt_weights.resize(Nexpts);
+		std::fill(expt_weights.begin(),expt_weights.end(),1);
+	}
+
+	theFCN.SetWeights(expt_weights);
 
 	for(size_t m=0;m<matrixElements_Beam.size();m++)
 		matrixElements_Beam.at(m).Print();
@@ -115,7 +130,9 @@ void GOSIASimFitter::DoFit(const char* method, const char *algorithm){
 	//		ROOT::Math::Factory::CreateMinimizer("GSLMultiMin", "SteepestDescent");
 	ROOT::Math::Functor f_init(theFCN,parameters.size());
 
-	if(fLikelihood)
+	min->SetErrorDef(1);
+	//if(fLikelihood)
+	if(false)
 		min->SetErrorDef(0.5);
 
 	std::cout 	<< "Iterations: " 
@@ -150,8 +167,12 @@ void GOSIASimFitter::DoFit(const char* method, const char *algorithm){
 
 	std::cout << std::endl;
 
+
+	min->SetPrecision(1e-8);
+
 	std::cout	<< "************************************ INITIAL MINIMIZATION ************************************"
 			<< std::endl;
+
 
 	if(!verbose && !fLikelihood){
 		std::cout 	<< std::setw(12) << std::left << "Iteration:" 
@@ -183,7 +204,7 @@ void GOSIASimFitter::DoFit(const char* method, const char *algorithm){
 	int 	counter = 0;
 	int	status = min->Status();
 
-	while(counter < 5){// && status == 3){
+	while(counter < 5 && status == 3){
 		min->Minimize();
 		status	= min->Status();
 		counter++;
@@ -196,9 +217,34 @@ void GOSIASimFitter::DoFit(const char* method, const char *algorithm){
 	std::cout	<< "**************************************** FIT COMPLETE ****************************************"
 			<< std::endl;
 
-	min->PrintResults();
+	//min->PrintResults();
+
+	chisq	= min->MinValue();
 
 	const double	*res = min->X();
+	const double	*unc = min->Errors();
+
+	std::cout	<< "Beam matrix elements:"
+			<< std::endl;
+	for(size_t i=0;i<matrixElements_Beam.size();i++){
+		std::cout	<< std::setw(10) << std::left << matrixElements_Beam.at(i).GetInitialState()
+				<< std::setw(10) << std::left << matrixElements_Beam.at(i).GetFinalState()
+				<< std::setw(10) << std::left << res[i]
+				<< std::setw(10) << std::left << unc[i]
+				<< std::endl;
+	}
+	std::cout	<< "Target matrix elements:"
+			<< std::endl;
+	for(size_t i=0;i<matrixElements_Target.size();i++){
+		size_t j = matrixElements_Beam.size() + i;
+		std::cout	<< std::setw(10) << std::left << matrixElements_Target.at(i).GetInitialState()
+				<< std::setw(10) << std::left << matrixElements_Target.at(i).GetFinalState()
+				<< std::setw(10) << std::left << res[j]
+				<< std::setw(10) << std::left << unc[j]
+				<< std::endl;
+	}
+	std::cout	<< std::endl;
+
 	for(unsigned int i=0;i<parameters.size();i++)
 		parameters[i] = res[i];
 
@@ -214,6 +260,8 @@ void GOSIASimFitter::DoFit(const char* method, const char *algorithm){
 	}
 
 	if(DoFullUncertainty()){
+
+		//min->SetTolerance(0.01);
 
 		std::cout	<< "************************************** UNCERTAINTY EVAL. **************************************"
 				<< std::endl;
@@ -243,13 +291,39 @@ void GOSIASimFitter::DoFit(const char* method, const char *algorithm){
 					<< std::endl;
 		}
 
+		for(unsigned int i=0;i<parameters.size();i++){
+			for(unsigned int j=i;j<parameters.size();j++){
+				covMat[i][j] = min->CovMatrix(i,j);
+				covMat[j][i] = min->CovMatrix(j,i);
+				corMat[i][j] = min->Correlation(i,j);
+				corMat[j][i] = min->Correlation(j,i);
+			}
+		}
+
 	}
 
-	for(size_t i=0;i<parameters.size();i++)
-		std::cout	<< parameters.at(i)
-				<< std::endl;
+	std::cout	<< "\n"
+			<< "******** Covariance matrix **********\n"
+			<< std::endl;
 
 	covMat.Print();
+
+	std::cout	<< "\n"
+			<< "******** Correlation matrix **********\n"
+			<< std::endl;
+
+	corMat.Print();
+
+
+	std::cout	<< "\n"
+			<< "******** Final Chi-Squared ***********\n"
+			<< std::endl;
+
+	std::cout	<< chisq
+			<< std::endl;
+
+	std::cout	<< "********     Complete      ***********\n"
+			<< std::endl;
 }
 
 void GOSIASimFitter::CreateScalingParameter(std::vector<int> expnum){
@@ -288,6 +362,16 @@ void GOSIASimFitter::AddTargetFittingMatrixElement(int lambda, int init, int fin
 //	else
 //		std::cout << "Outside vector range" << std::endl;
 //}
+
+void GOSIASimFitter::AddWeightingFactor(float f){
+	expt_weights.push_back(f);
+}
+void GOSIASimFitter::SetWeightingFactor(int i, float f){
+	if(i < (int)expt_weights.size())
+		expt_weights.at(i) = f;
+	else
+		std::cout << "Outside vector range" << std::endl;
+}
 
 void GOSIASimFitter::AddBeamCorrectionFactor(TMatrixD corrFac){
 	correctionFactors_Beam.push_back(corrFac);

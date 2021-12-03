@@ -5,16 +5,9 @@
 #include "ScalingParameter.h"
 #include <chrono>
 
-#include "Minuit2/Minuit2Minimizer.h"
 #include "Math/Functor.h"
 #include "Math/Factory.h"
 #include "Math/Minimizer.h"
-#include "Minuit2/FunctionMinimum.h"
-#include "Minuit2/MnUserParameterState.h"
-#include "Minuit2/MnMigrad.h" 
-#include "Minuit2/MnMinos.h"
-#include "Minuit2/MnContours.h"
-#include "Minuit2/MnPlot.h"
 
 #include <iostream>
 

@@ -35,7 +35,10 @@ void	GOSIAReader::ReadGOSIAFile(const char* datafilename){
 				ss	>> iJ;
 				ss	>> fJ;
 				ss	>> counts;
-				ss	>> uncertainty; 
+				ss	>> uncertainty;
+				//std::cout.precision(60); 
+				//std::cout	<< line << "\n"
+				//		<< counts << std::endl;
 				initial_state--;	// GOSIA to Cygnus numbering
 				final_state--;		// GOSIA to Cygnus numbering
 	

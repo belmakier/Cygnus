@@ -19,10 +19,11 @@
 class DataReader {
 
 	public:
-		DataReader(Nucleus*,const char*);			/*!< Constructor with Nucleus (for level assignments) and filename of formatted data */
+		DataReader(Nucleus*,const char*,bool GOSIA=false);			/*!< Constructor with Nucleus (for level assignments) and filename of formatted data */
 		~DataReader()				{;	}
 
 		void	ReadDataFile(const char*);			/*!< Read formatted yield file and add data for ExperimentData vector */
+		void	ReadGOSIAData(const char*);
 
 		std::vector<ExperimentData>		GetExperimentData()		{ return exptData;	}	/*!< Return vector of ExperimentData */
 

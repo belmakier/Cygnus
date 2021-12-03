@@ -6,16 +6,10 @@
 #include "ScalingParameter.h"
 #include <chrono>
 
-#include "Minuit2/Minuit2Minimizer.h"
 #include "Math/Functor.h"
 #include "Math/Factory.h"
 #include "Math/Minimizer.h"
-#include "Minuit2/FunctionMinimum.h"
-#include "Minuit2/MnUserParameterState.h"
-#include "Minuit2/MnMigrad.h" 
-#include "Minuit2/MnMinos.h"
-#include "Minuit2/MnContours.h"
-#include "Minuit2/MnPlot.h"
+#include "Math/MinimizerOptions.h"
 
 #include <iostream>
 
@@ -161,6 +155,12 @@ class GOSIASimFitter {
 		std::vector<TMatrixD>	GetEffectiveCrossSection_Beam()		const	{ return EffectiveCrossSection_Beam;	}	/*!< Return the beam's "effective cross section" = direct population + feeding */
 		std::vector<TMatrixD>	GetEffectiveCrossSection_Target() 	const	{ return EffectiveCrossSection_Target;	}	/*!< Return the target's "effective cross section" = direct population + feeding */
 
+		void	ClearEffectiveCrossSection_Beam()				{ EffectiveCrossSection_Beam.clear();		}
+		void	ClearEffectiveCrossSection_Target()				{ EffectiveCrossSection_Target.clear();		}
+
+		void	AddEffectiveCrossSection_Beam(TMatrixD m)			{ EffectiveCrossSection_Beam.push_back(m);	}
+		void	AddEffectiveCrossSection_Target(TMatrixD m)			{ EffectiveCrossSection_Target.push_back(m);	}
+
 		void	SetBaseBeamNucleus(Nucleus* nucl)				{ fNucleus_Target_Base = *nucl;		}	/*!< Define the base beam nucleus (not to be varied in fitting) */
 		Nucleus				GetBaseBeamNucleus() 		const	{ return fNucleus_Beam_Base;		}	/*!< Return the base beam nucleus (not to be varied in fitting) */
 		void	SetBaseTargetNucleus(Nucleus* nucl)				{ fNucleus_Target_Base = *nucl;		}	/*!< Define the base target nucleus (not to be varied in fitting) */
@@ -170,13 +170,6 @@ class GOSIASimFitter {
 		Nucleus				GetBeamNucleus() 		const	{ return fNucleus_Beam;			}	/*!< Return the fitting beam nucleus (varied in fitting) */
 		void	SetTargetNucleus(Nucleus *nucl)					{ fNucleus_Target = *nucl;		}	/*!< Define the fitting target nucleus (varied in fitting) */
 		Nucleus				GetTargetNucleus() 		const	{ return fNucleus_Target;		}	/*!< Return the fitting target nucleus (varied in fitting) */
-
-		//void	AddBeamCorrectionFactor(TVectorD);										/*!< Add beam point calculation correction factors (append) */
-		//void	SetBeamCorrectionFactor(int i, TVectorD);									/*!< Define beam point calculation correction factors for experiment i */
-		//std::vector<TVectorD> GetBeamCorrectionFactors()		const	{ return correctionFactors_Beam;	}	/*!< Return beam point calculation correction factors */
-		//void	AddTargetCorrectionFactor(TVectorD);										/*!< Add beam point calculation correction factors (append) */
-		//void	SetTargetCorrectionFactor(int i, TVectorD);									/*!< Define beam point calculation correction factors for experiment i */
-		//std::vector<TVectorD> GetTargetCorrectionFactors()		const	{ return correctionFactors_Target;	}	/*!< Return beam point calculation correction factors */
 
 		void	AddBeamCorrectionFactor(TMatrixD);										/*!< Add beam point calculation correction factors (append) */
 		void	SetBeamCorrectionFactor(int i, TMatrixD);									/*!< Define beam point calculation correction factors for experiment i */
@@ -210,9 +203,10 @@ class GOSIASimFitter {
 		void	SetLikelihoodFit(bool b = true)					{ fLikelihood = b;			}	/*!< Define whether we do a log-likelihood based fit (default: chi-squared) */
 		bool	LikelihoodFit()						const	{ return fLikelihood;			}	/*!< Return whether we do a log-likelihood based fit (default: chi-squared) */
 
-		std::vector<double>	GetFitParameters()				{ return parameters;			}	/*!< Return fit parameters - note that these will be updated with the fit result after the fit - Used in MCMC methods */
-		std::vector<double>	GetFitUL()					{ return par_UL;			}	/*!< Return the fit parameter upper limits - Used in MCMC methods */
-		std::vector<double>	GetFitLL()					{ return par_LL;			}	/*!< Return the fit parameter lower limits - Used in MCMC methods */
+		double			GetFitChisq()				const	{ return chisq;				}
+		std::vector<double>	GetFitParameters()			const	{ return parameters;			}	/*!< Return fit parameters - note that these will be updated with the fit result after the fit - Used in MCMC methods */
+		std::vector<double>	GetFitUL()				const	{ return par_UL;			}	/*!< Return the fit parameter upper limits - Used in MCMC methods */
+		std::vector<double>	GetFitLL()				const	{ return par_LL;			}	/*!< Return the fit parameter lower limits - Used in MCMC methods */
 
 		void	SetFitParameters(std::vector<double> p)				{ parameters = p;			}	/*!< Set the fit parameters - note that these will be updated after the fit has been performed - Used in MCMC methods */
 		void	SetFitUL(std::vector<double> p)					{ par_UL = p;				}	/*!< Set the fit parameter upper limits - Used in MCMC methods */
@@ -220,19 +214,31 @@ class GOSIASimFitter {
 
 		void	SetFittingParameter(size_t i, double v)				{ parameters.at(i) = v;			}	/*!< Set an individual fitting parameter - Used in MCMC methods */
 
+		void	SetWeightingFactors(std::vector<float> v)			{ expt_weights = v;			}
+		void	AddWeightingFactor(float f);
+		void	SetWeightingFactor(int i, float f);
+		std::vector<float>	GetWeightingFactor()			const	{ return expt_weights;			}
+
+		std::vector<int>	GetBeamMappingInit()			const	{ return beamMapping_i;			}
+		std::vector<int>	GetBeamMappingFinal()			const	{ return beamMapping_f;			}
+		std::vector<int>	GetBeamMappingLambda()			const	{ return beamMapping_l;			}
+                
+		std::vector<int>	GetTargetMappingInit()			const	{ return targetMapping_i;		}
+		std::vector<int>	GetTargetMappingFinal()			const	{ return targetMapping_f;		}
+		std::vector<int>	GetTargetMappingLambda()		const	{ return targetMapping_l;		}
+
+
 	private:
 
 		std::vector<int>		index;
 
+		double				chisq;				/*!< Chisq following fit */
 		std::vector<double>		parameters;			/*!< Matrix elements + scaling factors */
 		std::vector<double>		par_LL;				/*!< Matrix elements + scaling factors - LOWER LIMIT */
 		std::vector<double>		par_UL;				/*!< Matrix elements + scaling factors - UPPER LIMIT */
 		std::vector<MatrixElement>	matrixElements_Beam;		/*!< Preset to related parameters to matrix elements (beam) */
 		std::vector<MatrixElement>	matrixElements_Target;		/*!< Preset to related parameters to matrix elements (target) */
 		std::vector<ScalingParameter>	scalingParameters;		/*!< Common scaling parameters */
-
-		//std::vector<TVectorD>		correctionFactors_Beam;		/*!< Point corrections for the beam nucleus excitation */
-		//std::vector<TVectorD>		correctionFactors_Target;	/*!< Point corrections for the target nucleus excitation*/
 
 		std::vector<TMatrixD>		correctionFactors_Beam;		/*!< Point corrections for the beam nucleus excitation */
 		std::vector<TMatrixD>		correctionFactors_Target;	/*!< Point corrections for the target nucleus excitation*/
@@ -297,6 +303,8 @@ class GOSIASimFitter {
 		std::vector<int>		targetMapping_i;
 		std::vector<int>		targetMapping_f;
 		std::vector<int>		targetMapping_l;
+
+		std::vector<float>		expt_weights;
 
 };
 #endif
