@@ -78,7 +78,7 @@ void RunFitter(const char* nuclfile = "NucleusFile.txt", const char* datafile = 
 	for(unsigned int e=0;e<6;e++){
 		//	GammaYield::PrintYields is a static function that converts cross sections into gamma-ray yields. It is compatible with a number of arguments (see documentation).
 		GammaYield::PrintYields(expts->GetExperimentRange(e),*rates,*nucl);
-q		//	A temporary ExperimentData object is created, to push back into the vector
+		//	A temporary ExperimentData object is created, to push back into the vector
 		ExperimentData tmpExpt = dataReader->GetExperimentData().at(e);		//	Get the data from the DataReader object created from file
 		tmpExpt.SetThetaCM(expts->GetExperimentRange(e).GetMeanThetaCM());	//	The mean center of mass angle is also stored here 
 		exptVec.push_back(tmpExpt);						//	Push the temporary object into the vector
