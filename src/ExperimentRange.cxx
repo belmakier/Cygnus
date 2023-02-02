@@ -16,7 +16,7 @@ ExperimentRange::ExperimentRange() : fNucleus(NULL), fReaction(NULL), fIntegral(
 	fUseFixedStep	= false;
 	fUseSymmetry	= true;
 
-	integratedRutherford 	= 0;
+	integratedRutherford	= 0;
 
 }
 
@@ -39,7 +39,7 @@ ExperimentRange::ExperimentRange(Nucleus* nucl, Reaction* reac) : fNucleus(nucl)
 	fUseFixedStep	= false;
 	fUseSymmetry	= true;
 
-	integratedRutherford 	= 0;
+	integratedRutherford	= 0;
 
 }
 
@@ -62,7 +62,7 @@ ExperimentRange::ExperimentRange(const ExperimentRange& e) : fNucleus(e.fNucleus
 	
 	fAccuracy	= e.fAccuracy;
 
-	thetamin 	= e.thetamin;
+	thetamin	= e.thetamin;
 	thetamax	= e.thetamax;
 	energymin	= e.energymin;
 	energymax	= e.energymax;
@@ -71,12 +71,11 @@ ExperimentRange::ExperimentRange(const ExperimentRange& e) : fNucleus(e.fNucleus
 	meanThetaCM	= e.meanThetaCM;
 	meanThetaLab	= e.meanThetaLab;
 	meanEnergy	= e.meanEnergy;
-	thetaminCM 	= e.thetaminCM;
+	thetaminCM	= e.thetaminCM;
 	thetamaxCM	= e.thetamaxCM;
 	targetDetection = e.targetDetection;
-	verbose		= e.verbose;
-
-	nThreads	= e.nThreads;
+	verbose			= e.verbose;
+	nThreads		= e.nThreads;
 
 	fUseFit		= e.fUseFit;
 
@@ -92,8 +91,8 @@ ExperimentRange& ExperimentRange::operator = (const ExperimentRange &e){
 
 	fUseEfficiency	= e.fUseEfficiency;
 
-	fNucleus 	= e.fNucleus;
-	fReaction 	= e.fReaction;
+	fNucleus	= e.fNucleus;
+	fReaction		= e.fReaction;
 	fIntegral	= e.fIntegral;
 
 	IntegratedCrossSection_TVec.ResizeTo(e.IntegratedCrossSection_TVec.GetNrows());
@@ -105,7 +104,7 @@ ExperimentRange& ExperimentRange::operator = (const ExperimentRange &e){
 	
 	fAccuracy	= e.fAccuracy;
 
-	thetamin 	= e.thetamin;
+	thetamin	= e.thetamin;
 	thetamax	= e.thetamax;
 	energymin	= e.energymin;
 	energymax	= e.energymax;
@@ -114,7 +113,7 @@ ExperimentRange& ExperimentRange::operator = (const ExperimentRange &e){
 	meanThetaCM	= e.meanThetaCM;
 	meanThetaLab	= e.meanThetaLab;
 	meanEnergy	= e.meanEnergy;
-	thetaminCM 	= e.thetaminCM;
+	thetaminCM	= e.thetaminCM;
 	thetamaxCM	= e.thetamaxCM;
 	targetDetection = e.targetDetection;
 	verbose		= e.verbose;
@@ -166,7 +165,7 @@ void ExperimentRange::IntegrateRange()
 	double meantheta_cm = fReaction->ConvertThetaLabToCm(meantheta * TMath::DegToRad(),part) * TMath::RadToDeg();
 	meanThetaCM = meantheta_cm;
 	meanThetaLab = meantheta;
-	meanEnergy  = meanenergy;
+	meanEnergy	= meanenergy;
 
 	for(int n=0; n<nTheta; n++)
 		fIntegral->AddThetaMeshpoint(thetamin + thetastep*n);
@@ -177,7 +176,7 @@ void ExperimentRange::IntegrateRange()
 	typedef std::chrono::milliseconds milliseconds;
 	Clock::time_point t0 = Clock::now();
 
-	fIntegral->CalculateIntegral();			
+	fIntegral->CalculateIntegral();
 
 	Clock::time_point t1 = Clock::now();
 	milliseconds ms = std::chrono::duration_cast<milliseconds>(t1-t0);
@@ -194,9 +193,9 @@ void ExperimentRange::IntegrateRange()
 	int nPart = 2;
 	if(targetDetection)
 		nPart = 3;
-	std::cout 	<< std::setw(18) << std::left << thetacm_min 
+	std::cout		<< std::setw(18) << std::left << thetacm_min 
 			<< std::setw(18) << std::left << thetacm_max
-		 	<< std::setw(18) << std::left << fReaction->ConvertThetaCmToLab(thetacm_min*TMath::DegToRad(),nPart)*TMath::RadToDeg()
+			<< std::setw(18) << std::left << fReaction->ConvertThetaCmToLab(thetacm_min*TMath::DegToRad(),nPart)*TMath::RadToDeg()
 			<< std::setw(18) << std::left << fReaction->ConvertThetaCmToLab(thetacm_max*TMath::DegToRad(),nPart)*TMath::RadToDeg()
 			<< std::setw(14) << std::left << nThreads
 			<< std::setw(20) << std::left << ms.count()
@@ -263,19 +262,27 @@ double ExperimentRange::IntegrateThetaEnergy(int state){
 			<< std::setw(10) << std::left << eMax
 			<< std::setw(10) << std::left << eStep
 			<< std::endl;*/
+
 	
 	// We can use Simpson's rule to integrate theta and energy and
 	// for every energy, divide out dE/dX
+	double energy, theta, value;
 	for(int e = 0; e < eSteps; e++){
 		double tmpCS = 0;
-		double energy = eMin + e*eStep;
 		for(int t = 0; t < tSteps; t++){
-			if(t==0 || t==(tSteps-1))
-				tmpCS += gEvsTheta->Interpolate(tMin + t*tStep,energy);
-			else if((t % 2) == 0)
-				tmpCS += gEvsTheta->Interpolate(tMin + t*tStep,energy) * 2;
-			else
-				tmpCS += gEvsTheta->Interpolate(tMin + t*tStep,energy) * 4;
+			int point(t*eSteps + e);
+			//rather than use the Interpolate function which is computationally
+			//expensive, retrieve the mesh point itself
+			gEvsTheta->GetPoint(point, theta, energy, value);
+			if (t==0 || t==(tSteps-1)) {
+				tmpCS += value;
+			}
+			else if ((t % 2) == 0) {
+				tmpCS += 2*value;
+			}
+			else {
+				tmpCS += 4*value;
+			}			 
 		}
 		tmpCS *= (tStep / 3.);
 		tmpCS /= fStopping.GetStoppingFit().Eval(energy);
@@ -313,13 +320,13 @@ TGraph2D* ExperimentRange::InterpolatedEnergyTheta(int state, bool useDetector){
 
 	TF1 *tFits[fIntegral->GetCMThetaPoints().size()];
 	TSpline3 *tSplines[fIntegral->GetCMThetaPoints().size()];
-	for(int e = 0; e < nEnergy; e++){ 	// For each energy meshpoint, do a fit to the theta distribution
+	for(int e = 0; e < nEnergy; e++){		// For each energy meshpoint, do a fit to the theta distribution
 		TGraph gTmp;
 		double *tmp_x = new double[fIntegral->GetCMThetaPoints().at(e).size()];
 		double *tmp_y = new double[fIntegral->GetCMThetaPoints().at(e).size()];
 		for(size_t t = 0; t < fIntegral->GetCMThetaPoints().at(e).size(); t++){
-			double tmp_theta 	= fReaction->ConvertThetaCmToLab(fIntegral->GetCMThetaPoints().at(e).at(t) * TMath::DegToRad(), nPart) * TMath::RadToDeg();
-			double tmp_cs 		= fIntegral->GetMeshPointProbabilities().at(e).at(t)[state] * TMath::Sin(tmp_theta * TMath::DegToRad()) * fReaction->Rutherford(tmp_theta,nPart);
+			double tmp_theta	= fReaction->ConvertThetaCmToLab(fIntegral->GetCMThetaPoints().at(e).at(t) * TMath::DegToRad(), nPart) * TMath::RadToDeg();
+			double tmp_cs			= fIntegral->GetMeshPointProbabilities().at(e).at(t)[state] * TMath::Sin(tmp_theta * TMath::DegToRad()) * fReaction->Rutherford(tmp_theta,nPart);
 			tmp_cs *= TMath::DegToRad() * 2 * TMath::Pi() / (4 * TMath::Pi());
 			gTmp.SetPoint((int)t,tmp_theta,tmp_cs);
 			tmp_x[t] = tmp_theta;
@@ -337,6 +344,8 @@ TGraph2D* ExperimentRange::InterpolatedEnergyTheta(int state, bool useDetector){
 			tFits[e] = new TF1(fname,fittype,tMin,tMax);
 			gTmp.Fit(tFits[e],"RQ0");
 		}
+		delete[] tmp_x;
+		delete[] tmp_y; 
 	}
 
 	if(false){
@@ -386,7 +395,9 @@ TGraph2D* ExperimentRange::InterpolatedEnergyTheta(int state, bool useDetector){
 		if(UseFit()){
 			eFits[t] = new TF1(fname,"pol3",eMin,eMax);
 			gTmp.Fit(eFits[t],"RQ0");
-		}	
+		}
+		delete[] tmp_x;
+		delete[] tmp_y;
 	}
 
 	TGraph2D *g = new TGraph2D;
@@ -397,12 +408,15 @@ TGraph2D* ExperimentRange::InterpolatedEnergyTheta(int state, bool useDetector){
 			eff = fDetectorEff_CM->Eval(tMin + t*tStep);
 		}
 		for(int e = 0; e < eSteps; e++){
-			if(UseFit())
+			if(UseFit()) {
 				g->SetPoint(pointCounter,tMin + t*tStep, eMin + e*eStep, eFits[t]->Eval(eMin + e*eStep) * eff);
-			else
+			}
+			else {
 				g->SetPoint(pointCounter,tMin + t*tStep, eMin + e*eStep, eSplines[t]->Eval(eMin + e*eStep) * eff);
+			}
 			pointCounter++;
 		}
+
 	}
 
 	return g;
@@ -635,15 +649,15 @@ TGraph2D* ExperimentRange::GetThetaEnergyGraph(int state){
 	int npoint = 0;
 	for(int nT = 0; nT < nTheta; nT++){
 		for(int nE = 0; nE < nEnergy; nE++){
-			double tmp_theta 	= fReaction->ConvertThetaCmToLab(fIntegral->GetCMThetaPoints().at(nE).at(nT) * TMath::DegToRad(), nPart) * TMath::RadToDeg();
-			double tmp_cs 		= fIntegral->GetMeshPointProbabilities().at(nE).at(nT)[state] * TMath::Sin(tmp_theta * TMath::DegToRad()) * fReaction->Rutherford(tmp_theta,nPart) * TMath::DegToRad() * 2 * TMath::Pi();
+			double tmp_theta	= fReaction->ConvertThetaCmToLab(fIntegral->GetCMThetaPoints().at(nE).at(nT) * TMath::DegToRad(), nPart) * TMath::RadToDeg();
+			double tmp_cs			= fIntegral->GetMeshPointProbabilities().at(nE).at(nT)[state] * TMath::Sin(tmp_theta * TMath::DegToRad()) * fReaction->Rutherford(tmp_theta,nPart) * TMath::DegToRad() * 2 * TMath::Pi();
 			g->SetPoint(npoint,tmp_theta,fIntegral->GetEnergy(nE),tmp_cs);
 			npoint++;
 		}
 	}
 
 	char gname[64];
-	sprintf(gname,"CrossSection_%f_%f_degrees_%f_%f_MeV",g->GetX()[0],g->GetX()[g->GetN()-1],g->GetY()[0],g->GetY()[g->GetN()-1]);
+	sprintf(gname,"CrossSection_%3.1f_%3.1f_degrees_%3.1f_%3.1f_MeV",g->GetX()[0],g->GetX()[g->GetN()-1],g->GetY()[0],g->GetY()[g->GetN()-1]);
 	g->SetName(gname);
 	g->SetTitle(gname);
 
@@ -664,7 +678,7 @@ void ExperimentRange::SetMeanValues(){
 
 	double meantheta_cm = fReaction->ConvertThetaLabToCm(meantheta * TMath::DegToRad(),part) * TMath::RadToDeg();
 	meanThetaCM = meantheta_cm;
-	meanEnergy  = meanenergy;
+	meanEnergy	= meanenergy;
 
 }
 
@@ -675,7 +689,7 @@ void ExperimentRange::PrintDetails() const{
 	fReaction->PrintReaction();
 
 	std::cout << "Mean theta [lab]: " << GetMeanThetaLab() << " degrees" << std::endl;
-	std::cout << "Mean theta [CM]: " << GetMeanThetaCM() << " degrees" << std::endl;  
+	std::cout << "Mean theta [CM]: " << GetMeanThetaCM() << " degrees" << std::endl;	
 	std::cout << "Angular range [lab]: " << thetamin << "\t" << thetamax << " degrees" << std::endl;
 	std::cout << "Energy range: " << energymin << "\t" << energymax << " MeV" << std::endl; 
 

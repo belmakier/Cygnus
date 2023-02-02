@@ -255,7 +255,6 @@ void Reaction::SetCmFrame(double exc){
 }
 
 double Reaction::ConvertThetaLabToCm(double theta_lab, int part){
-
 	double theta_cm;
 	if(fGOSIAKin){
 

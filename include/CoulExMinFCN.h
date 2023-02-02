@@ -76,8 +76,8 @@ class CoulExMinFCN { // : public ROOT::Minuit2::FCNBase{
 		void	AddScalingParameter(ScalingParameter s)				{ scalingParameters.push_back(s);	}	/*!< Append a new ScalingParameter to the vector */
 		void	ClearScalingParameters()					{ scalingParameters.clear();		}	/*!< Clear the vector of ScalingParameter objects */
 
-		void	SetPointCalcs(std::vector<PointCoulEx> p)			{ pointCalcs = p;			}	/*!< Define the vector of PointCoulEx objects (one for each experiment) */
-		std::vector<PointCoulEx>	GetPointCalcs() 		const	{ return pointCalcs;			}	/*!< Return the vector of PointCoulEx objects (one for each experiment) */
+		void	SetPointCalcs(std::vector<PointCoulEx*> p)			{ pointCalcs = p;			}	/*!< Define the vector of PointCoulEx objects (one for each experiment) */
+		std::vector<PointCoulEx*>	GetPointCalcs() 		const	{ return pointCalcs;			}	/*!< Return the vector of PointCoulEx objects (one for each experiment) */
 
 		void	SetData(std::vector<ExperimentData> d)				{ exptData = d;				}	/*!< Define the vector of ExperimentData objects (one for each experiment) */
 		std::vector<ExperimentData>	GetData() 			const	{ return exptData;			}	/*!< Return the vector of ExperimentData objects (one for each experiment) */
@@ -114,7 +114,7 @@ class CoulExMinFCN { // : public ROOT::Minuit2::FCNBase{
 		void	SetIter(int i)							{ nIterations = i;			}	/*!< Define the number of iterations (MINUIT2) */
 		void 	SetCalls(int i)							{ nCalls = i;				}	/*!< Define the number of function calls (GSL) */
 
-		void	SetNthreads(int n)						{ nThreads = n;				}	/*!< Define the number of cores the function is allowed to use */
+  void	SetNthreads(int n);						/*!< Define the number of cores the function is allowed to use */
 		int	GetNthreads()						const	{ return nThreads;			}	/*!< Return the number of cores the function is allowed to use */
 
 		double	GetParameter(int i)					const	{ return parameters.at(i);		}	/*!< Return the fitting parameter indexed by i */
@@ -139,7 +139,7 @@ class CoulExMinFCN { // : public ROOT::Minuit2::FCNBase{
 
 		std::vector<TVectorD>		correctionFactors;
 
-		std::vector<PointCoulEx>	pointCalcs;			// Point calculations
+		std::vector<PointCoulEx*>	pointCalcs;			// Point calculations
 		std::vector<ExperimentData>	exptData;			// Experimental data (one vector entry for each data subset)
 		std::vector<LitLifetime>	litLifetimes;			// Literature data, lifetimes
 		std::vector<LitBranchingRatio>	litBranchingRatios;		// Literature data, branching ratios
@@ -163,6 +163,7 @@ class CoulExMinFCN { // : public ROOT::Minuit2::FCNBase{
 		int				iter;
 
 		int				nThreads;
+  std::vector<std::vector<int> > threadAlloc; //which threads are doing which calculations
 
 		std::vector<int>		exptIndex;
 

@@ -8,7 +8,7 @@ ROOT_LIBS = `root-config --glibs` -lSpectrum -lTreePlayer -lMathMore
 LIBRS = $(INCDIR) $(ROOT_LIBS) $(GSLLIBS)
 INCLUDE = $(INCDIR)
 
-CFLAGS = -std=c++11 -g -fPIC `root-config --cflags` `gsl-config --cflags` -Wno-unused-parameter
+CFLAGS = -std=c++11 -g -fPIC `root-config --cflags` `gsl-config --cflags` -Wno-unused-parameter -O3
 
 PLATFORM:=$(shell uname)
 $(info PLATFORM: $(PLATFORM))

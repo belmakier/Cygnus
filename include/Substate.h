@@ -4,14 +4,15 @@
 #include <cstddef>
 #include <vector>
 #include "Connection.h"
+#include "Nucleus.h"
 
 ///
 ///	\class Substate
 ///
 ///	\brief Holder class for substate information
 ///
-/// 	Holder class for information on magnetic substates including M, 
-///	connection information, etc.                 
+///		Holder class for information on magnetic substates including M, 
+///	connection information, etc.								 
 ///
 ///	Excitation calculations are performed substate-by-substate, so
 ///	this class (rather than the State class) contains the majority
@@ -37,25 +38,34 @@ class Substate {
 		Substate(const Substate& s);			/*!< Copy constructor */
 		Substate& operator = (const Substate& s);	/*!< Assignment operator */
 
-		int			GetStateIndex()		const	{ return fStateIndex;			}	/*!< Return the parent state index */
+		const int&			GetStateIndex()		const	{ return fStateIndex;			}	/*!< Return the parent state index */
 		void			SetStateIndex(int i)		{ fStateIndex = i;			}	/*!< Define the parent state index */
+	void SetPar(Nucleus &nuc);
 
-		double			GetM()			const	{ return fM;				}	/*!< Return the magnetic quantum number */
+		const double&			GetM()			const	{ return fM;				}	/*!< Return the magnetic quantum number */
 		void			SetM(double m)			{ fM = m;				}	/*!< Define the magnetic quantum number */
+	const double GetPar() const { return fPar; }
 
 		unsigned int		GetNconnections()	const	{ return fConnections.size();		}	/*!< Return the number of connections to other substates */
-		Connection		GetConnection(int i)	const	{ return fConnections.at(i);		}	/*!< Return the connection (indexed i) to another substate */
+		const Connection&		GetConnection(int i)	const	{ return fConnections.at(i);		}	/*!< Return the connection (indexed i) to another substate */
 	
-		void			AddConnection(Connection c)	{ fConnections.push_back(c);		}	/*!< Define a new connection to another substate */
+	void			AddConnection(const Connection &c)	{ fConnections.push_back(std::move(c));		}	/*!< Define a new connection to another substate */
+	void	AddConnection(int i, int L) { fConnections.emplace_back(i, L); }
+
+	void AddLambda(const int &i, const int &l, const double &xi, const double &psi, const double &zeta);
+	void AddLambdaLast(const int &l, const double &xi, const double &psi, const double &zeta);
+
+	void Reserve(const int &i) { fConnections.reserve(i); }
 
 		void			SetMirrorIndex(int i)		{ fMirrorIndex = i;			}	/*!< Define mirror state index (M = -M) for use with symmetry arguments */
-		int			GetMirrorIndex()	const	{ return fMirrorIndex;			}	/*!< Get mirror state index (M = -M) for use with symmetry arguments */
+		const int&			GetMirrorIndex()	const	{ return fMirrorIndex;			}	/*!< Get mirror state index (M = -M) for use with symmetry arguments */
 
 	private:
-		int 			fSubstateIndex;
-		int 			fStateIndex;
+		int				fSubstateIndex;
+		int				fStateIndex;
 		int			fMirrorIndex;	// Index of the state with M = -M (for symmetry)
 		double			fM;
+		double fPar;
 		std::vector<Connection>	fConnections;
 
 };

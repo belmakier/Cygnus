@@ -5,7 +5,7 @@ Experiments::Experiments()
 
 	fAccuracy	= 1e-5;
 
-	fProjectileExcitation 	= true;
+	fProjectileExcitation		= true;
 	fUseEfficiency	= false;
 	verbose		= false; 
 	nThreads	= 1;
@@ -20,7 +20,7 @@ Experiments::Experiments(Nucleus* nucl, Reaction* reac)
 
 	fAccuracy	= 1e-5;
 
-	fProjectileExcitation 	= true;
+	fProjectileExcitation		= true;
 	fUseEfficiency	= false;
 	verbose		= false;
 	nThreads	= 1;
@@ -43,7 +43,7 @@ experimentRanges(e.experimentRanges.size()), pointCalculation(e.pointCalculation
 	fUseFixedStep		= e.fUseFixedStep;
 	fUseSymmetry		= e.fUseSymmetry;
 
-	fProjectileExcitation 	= e.fProjectileExcitation;
+	fProjectileExcitation		= e.fProjectileExcitation;
 
 	fUseEfficiency	= e.fUseEfficiency;
 
@@ -87,7 +87,7 @@ Experiments& Experiments::operator = (const Experiments& e){
 	fUseFixedStep		= e.fUseFixedStep;
 	fUseSymmetry		= e.fUseSymmetry;
 
-	fProjectileExcitation 	= e.fProjectileExcitation;
+	fProjectileExcitation		= e.fProjectileExcitation;
 
 	fUseEfficiency	= e.fUseEfficiency;
 
@@ -142,7 +142,6 @@ void Experiments::NewExperimentRange(double thetamin, double thetamax, int nT, d
 	tmpReac.SetLabEnergy(tmp.GetMeanEnergy());
 	PointCoulEx tmpPoin(&tmpNucl,&tmpReac);
 	pointCalculation.push_back(tmpPoin);
-
 }
 
 void Experiments::SetStopping(){
@@ -175,7 +174,6 @@ void Experiments::PointCorrections(){
 			<< std::endl;
 
 	for(size_t c = 0;c<experimentRanges.size();c++){
-
 		experimentRanges.at(c).SetProjectileExcitation(fProjectileExcitation);
 		experimentRanges.at(c).SetNthreads(nThreads);
 		experimentRanges.at(c).SetAccuracy(fAccuracy);
@@ -226,16 +224,16 @@ void Experiments::PrintDetails() const{
 void Experiments::PrintPointCorrections() {
 
 	for(size_t i = 0; i < experimentRanges.size(); i++){
-		std::cout 	<< std::setw(10) << std::left << "Experiment " << i+1 << std::endl;
+		std::cout		<< std::setw(10) << std::left << "Experiment " << i+1 << std::endl;
 		std::cout	<< std::setw(16) << std::left << "Mean Theta CM:" << experimentRanges.at(i).GetMeanThetaCM() << std::endl;
-		std::cout 	<< std::setw(8)  << std::left << "State:"
+		std::cout		<< std::setw(8)	 << std::left << "State:"
 				<< std::setw(14) << std::left << "Corr'n:" 
 				<< std::setw(14) << std::left << "Integral:"
 				<< std::setw(14) << std::left << "Point:"
 				<< std::setw(20) << std::left << "Corrected Point" 
 				<< std::endl;
 		for(int s =0; s<correctionFactors.at(i).GetNrows(); s++){
-			std::cout 	<< std::setw(8)  << std::left << s+1
+			std::cout		<< std::setw(8)	 << std::left << s+1
 					<< std::setw(14) << std::left << correctionFactors.at(i)[s]
 					<< std::setw(14) << std::left << integratedCrossSections.at(i)[s]
 					<< std::setw(14) << std::left << pointCrossSections.at(i)[s] 
@@ -246,13 +244,13 @@ void Experiments::PrintPointCorrections() {
 }
 
 void Experiments::WriteIntegralFits(const char* outfilename, const char* option) {
-
-	TFile *outfile = new TFile(outfilename,option);
+	
+TFile *outfile = new TFile(outfilename,option);
 	TDirectory *dir;
 	if(outfile->GetDirectory("Cross_Section_Distributions"))
 		dir = outfile->GetDirectory("Cross_Section_Distributions");
 	else
-		dir  = outfile->mkdir("Cross_Section_Distributions");
+		dir	 = outfile->mkdir("Cross_Section_Distributions");
 	TDirectory *sub_dir[experimentRanges.size()];
 	dir->cd();
 	for(unsigned int i=0;i < experimentRanges.size(); i++){
@@ -260,7 +258,7 @@ void Experiments::WriteIntegralFits(const char* outfilename, const char* option)
 		sprintf(dname,"Experiment_%i",i+1);
 		sub_dir[i] = dir->mkdir(dname);
 		sub_dir[i]->cd();
-		TGraph2D gRuth = *experimentRanges.at(i).GetRutherfordThetaEnergy();	
+		TGraph2D gRuth = *experimentRanges.at(i).GetRutherfordThetaEnergy();
 		char rname[64];
 		sprintf(rname,"Rutherford_Theta_Energy_Experiment_%i",i+1);
 		gRuth.SetName(rname);

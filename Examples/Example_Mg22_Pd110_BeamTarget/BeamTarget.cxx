@@ -20,7 +20,7 @@
 #include <iostream>
 
 void RunFitter(const char* beamfile, const char* targfile, int threads = 1){
-	
+  GPCM gpcm(threads, 7, 512, 512, 1);	
 	//******************************************************//
 	//		Set up and perform integration		//
 	//******************************************************//
@@ -137,8 +137,8 @@ void RunFitter(const char* beamfile, const char* targfile, int threads = 1){
 			<< std::endl;
 	for(unsigned int e=0;e<6;e++){
 		std::cout	<< std::setw(15) << std::left << e+1
-				<< std::setw(15) << std::left << expts_b->GetExperimentRange(e).IntegrateRutherford()	//	Beam integrated Rutherford
-				<< std::setw(15) << std::left << expts_t->GetExperimentRange(e).IntegrateRutherford()	//	Target integration Rutherford
+				<< std::setw(15) << std::left << expts_b->GetCloneExperimentRange(e).IntegrateRutherford()	//	Beam integrated Rutherford
+				<< std::setw(15) << std::left << expts_t->GetCloneExperimentRange(e).IntegrateRutherford()	//	Target integration Rutherford
 				<< std::endl;
 	}
 	

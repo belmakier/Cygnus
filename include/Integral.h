@@ -55,10 +55,10 @@ class Integral{
 
 		void	CalculateIntegral();								/*!< Perform the integration over the theta and energy meshpoints */
 
-		std::vector< TVectorD >				GetProbabilities();			/*!< Returns the vector of TVectorD values containing the probabilities at each meshpoint */
-		std::vector< std::vector < TVectorD > >		GetMeshPointCrossSections() 	const	{ return meshpointCrossSections;	}	/*!< Return a vector (energies) of vectors (theta) of TVectorD objects containing the calculated cross sections */
-		std::vector< std::vector < TVectorD > >		GetMeshPointProbabilities() 	const	{ return meshpointProbabilities;	}	/*!< Return a vector (energies) of vectors (theta) of TVectorD objects containing the calculated probabilities */
-		std::vector< std::vector < double   > >		GetCMThetaPoints()		const	{ return cmTheta;			}	/*!< Return a vector (energies) of vectors (theta) containing the center of mass angles of each meshpoint */
+	  std::vector< TVectorD >				GetProbabilities();			/*!< Returns the vector of TVectorD values containing the probabilities at each meshpoint */
+		const std::vector< std::vector < TVectorD > >&		GetMeshPointCrossSections() 	const	{ return meshpointCrossSections;	}	/*!< Return a vector (energies) of vectors (theta) of TVectorD objects containing the calculated cross sections */
+		const std::vector< std::vector < TVectorD > >&		GetMeshPointProbabilities() 	const	{ return meshpointProbabilities;	}	/*!< Return a vector (energies) of vectors (theta) of TVectorD objects containing the calculated probabilities */
+		const std::vector< std::vector < double   > >&		GetCMThetaPoints()		const	{ return cmTheta;			}	/*!< Return a vector (energies) of vectors (theta) containing the center of mass angles of each meshpoint */
 
 		int	GetNthetaMeshpoints()			const	{ return (int)theta_meshpoints.size();	}	/*!< Return the number of theta meshpoints */
 		int	GetNenergyMeshpoints()			const	{ return (int)energy_meshpoints.size();	}	/*!< Return the number of energy meshpoints */
@@ -71,19 +71,19 @@ class Integral{
 		void	SetVerbose(bool b = true)			{ verbose = b;				}	/*!< Define verbocity of calculations */
 	
 		void	SetNthreads(int n)				{ nThreads = n;				}	/*!< Define the number of cores the class can use in calculating the meshpoints */
-		int	GetNthreads()				const	{ return nThreads;			}	/*!< Return the number of cores the class can use in calculating the meshpoints */
+		const int&	GetNthreads()				const	{ return nThreads;			}	/*!< Return the number of cores the class can use in calculating the meshpoints */
 
 		void	SetAccuracy(double acc)				{ fAccuracy = acc;			}	/*!< Define the accuracy of the calculation */
 
 		void	SetProjectileExcitation(bool b = true)		{ fProjectileExcitation = b;		}	/*!< Defines whether beam or target excitation is being calculated */
 
-		bool	IntegralComplete()				{ return fComplete;			}	/*!< Returns flag indicating whether the integration has been performed */
+		const bool&	IntegralComplete()				{ return fComplete;			}	/*!< Returns flag indicating whether the integration has been performed */
 
 		void	SetUseSymmetry(bool b = true)					{ fUseSymmetry = b;	}	/*!< Sets whether symmetry arguments can be used to speed up the calculation (default = true) */                                          	
-		bool	UseSymmetry()						const	{ return fUseSymmetry;	}	/*!< Returns whether symmetry arguments can be used to speed up the calculation */
+		const bool&	UseSymmetry()						const	{ return fUseSymmetry;	}	/*!< Returns whether symmetry arguments can be used to speed up the calculation */
                                                                                                                                                                                                                                                                                                           
 		void	FixStep(bool b = true)						{ fUseFixedStep = b;	}	/*!< Set whether a fixed step (dOmega = 0.03, accuracy 1e-6) can be used - approx. equivalent to GOSIA INT,1000 */
-		bool	UseFixedStep()						const	{ return fUseFixedStep;	}	/*!< Return whether a fixed step will be used for the CoulEx calculation */                                      	                 	
+		const bool&	UseFixedStep()						const	{ return fUseFixedStep;	}	/*!< Return whether a fixed step will be used for the CoulEx calculation */                                      	                 	
 
 	private:
 
@@ -96,7 +96,7 @@ class Integral{
 		std::vector<double>		theta_meshpoints;
 		std::vector<double>		energy_meshpoints;
 
-		std::vector<PointCoulEx>	point_calculations;
+		std::vector<PointCoulEx*>	point_calculations;
 		std::vector<Reaction>		energymeshpoint_reaction;
 		std::vector<double>		track_theta;
 

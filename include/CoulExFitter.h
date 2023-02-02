@@ -67,7 +67,7 @@ class CoulExFitter {
 		virtual	void	ClearAll();			/*!< Completely clear all previous input */
 		
 		void	DefineExperiment(double t);		/*!< Defines a new experiment with t = theta_cm */
-		void	AddData(int i, int init, int fin, double c, double e);	/*!< Add experimental data to experiment defined by index i between initial (init) and final (fin) states with yield (c) and uncertainty (e)  */
+		void	AddData(int i, int init, int fin, double c, double e);	/*!< Add experimental data to experiment defined by index i between initial (init) and final (fin) states with yield (c) and uncertainty (e)	*/
 		
 		void	AddLifetime(int,double,double);		/*!< Add literature lifetime data */
 		void	AddBranchingRatio(int,int,int,double,double);	/*!< Add literature branching ratio data */
@@ -77,8 +77,8 @@ class CoulExFitter {
 		void	AddFittingMatrixElement(int,int,int,double,double,double);	/*!< Add a fitting matrix element */
 		void	CreateScalingParameter(std::vector<int>);			/*!< Add a scaling parameter, with common scaling experiments defined by their indices in a vector of int */
 
-		void	SetMatrixElements(std::vector<MatrixElement> m)		   	{ matrixElements = m;			}	/*!< Define vector of fitting MatrixElements */
-		std::vector<MatrixElement>	GetMatrixElements() 			{ return matrixElements;		}	/*!< Return vector of fitting MatrixElements */
+		void	SetMatrixElements(std::vector<MatrixElement> m)				{ matrixElements = m;			}	/*!< Define vector of fitting MatrixElements */
+		std::vector<MatrixElement>	GetMatrixElements()				{ return matrixElements;		}	/*!< Return vector of fitting MatrixElements */
 		void	AddMatrixElement(MatrixElement m)				{ matrixElements.push_back(m);		}
 		void	ClearMatrixElements()						{ matrixElements.clear();		}	/*!< Clear vector of fitting MatrixElements */
 
@@ -87,32 +87,32 @@ class CoulExFitter {
 		void	AddScalingParameter(ScalingParameter s)				{ scalingParameters.push_back(s);	}	/*!< Append ScalingParameter object to vector */
 		void	ClearScalingParameters()					{ scalingParameters.clear();		}	/*!< Clear scaling parameters */
 
-		void	AddPointCalc(PointCoulEx p)					{ pointCalcs.push_back(p);		}	/*!< Append PointCoulEx calculation object */	
-		void	SetPointCalcs(std::vector<PointCoulEx> p)		   	{ pointCalcs = p;			}	/*!< Define vector of PointCoulEx calculation objects */
-		std::vector<PointCoulEx>	GetPointCalcs() 			{ return pointCalcs;			}	/*!< Return vector of PointCoulEx calculation objects */
+		void	AddPointCalc(PointCoulEx *p)					{ pointCalcs.push_back(p);		}	/*!< Append PointCoulEx calculation object */	
+	void	SetPointCalcs(std::vector<PointCoulEx*> p)				{ pointCalcs = p; }	/*!< Define vector of PointCoulEx calculation objects */
+		std::vector<PointCoulEx*>	GetPointCalcs()				{ return pointCalcs;			}	/*!< Return vector of PointCoulEx calculation objects */
 
-		void	SetData(std::vector<ExperimentData> d)			   	{ exptData = d;				}	/*!< Define vector of ExperimentData */
-		std::vector<ExperimentData>	GetData() 				{ return exptData;			}	/*!< Return vector of ExperimentData */
+		void	SetData(std::vector<ExperimentData> d)					{ exptData = d;				}	/*!< Define vector of ExperimentData */
+		std::vector<ExperimentData>	GetData()					{ return exptData;			}	/*!< Return vector of ExperimentData */
 
-		void	SetLitLifetimes(std::vector<LitLifetime> l)		   	{ litLifetimes = l;			}	/*!< Define vectoe of LitLifetime objects */
-		std::vector<LitLifetime>	GetLitLifetimes() 			{ return litLifetimes;			}	/*!< Return vector of LitLifetime objects */
+		void	SetLitLifetimes(std::vector<LitLifetime> l)				{ litLifetimes = l;			}	/*!< Define vectoe of LitLifetime objects */
+		std::vector<LitLifetime>	GetLitLifetimes()				{ return litLifetimes;			}	/*!< Return vector of LitLifetime objects */
 
-		void	SetLitBranching(std::vector<LitBranchingRatio> b) 	   	{ litBranchingRatios = b;		}	/*!< Define vector of LitBranchingRatio objects */
-		std::vector<LitBranchingRatio>	GetLitBranching() 			{ return litBranchingRatios;		}	/*!< Return vector of LitBranchingRatio objects */
+		void	SetLitBranching(std::vector<LitBranchingRatio> b)				{ litBranchingRatios = b;		}	/*!< Define vector of LitBranchingRatio objects */
+		std::vector<LitBranchingRatio>	GetLitBranching()				{ return litBranchingRatios;		}	/*!< Return vector of LitBranchingRatio objects */
 	
-		void	SetLitMixing(std::vector<LitMixingRatio> m)		   	{ litMixingRatios = m;			}	/*!< Define vector of LitMixingRatio objects */
-		std::vector<LitMixingRatio>	GetLitMixing() 				{ return litMixingRatios;		}	/*!< Return vector of LitMixingRatio objects */
+		void	SetLitMixing(std::vector<LitMixingRatio> m)				{ litMixingRatios = m;			}	/*!< Define vector of LitMixingRatio objects */
+		std::vector<LitMixingRatio>	GetLitMixing()				{ return litMixingRatios;		}	/*!< Return vector of LitMixingRatio objects */
 	
-		void	SetLitMatrixElements(std::vector<LitMatrixElement> m)	   	{ litMatrixElements = m;		}	/*!< Define vector of LitMatrixElement objects */
-		std::vector<LitMatrixElement>	GetLitMatrixElements() 			{ return litMatrixElements;		}	/*!< Return vector of LitMatrixElement objects */
+		void	SetLitMatrixElements(std::vector<LitMatrixElement> m)			{ litMatrixElements = m;		}	/*!< Define vector of LitMatrixElement objects */
+		std::vector<LitMatrixElement>	GetLitMatrixElements()			{ return litMatrixElements;		}	/*!< Return vector of LitMatrixElement objects */
 
-		std::vector<TMatrixD>		GetEffectiveCrossSection() 		{ return EffectiveCrossSection;		}	/*!< Return vector of effective cross sections (direct population + feeding) */
+		std::vector<TMatrixD>		GetEffectiveCrossSection()		{ return EffectiveCrossSection;		}	/*!< Return vector of effective cross sections (direct population + feeding) */
 
-		void	SetBaseNucleus(Nucleus* nucl)				   	{ fNucleus_Base = *nucl;		}	/*!< Define base (unmodified) Nucleus object */
-		Nucleus				GetBaseNucleus() 			{ return fNucleus_Base;			}	/*!< Return base (unmodified) Nucleus object */
+		void	SetBaseNucleus(Nucleus* nucl)						{ fNucleus_Base = *nucl;		}	/*!< Define base (unmodified) Nucleus object */
+		Nucleus				GetBaseNucleus()			{ return fNucleus_Base;			}	/*!< Return base (unmodified) Nucleus object */
 	
-		void	SetNucleus(Nucleus *nucl)				   	{ fNucleus = *nucl;			}	/*!< Define Nucleus object */
-		Nucleus				GetNucleus() 				{ return fNucleus;			}	/*!< Return Nucleus object */	
+		void	SetNucleus(Nucleus *nucl)						{ fNucleus = *nucl;			}	/*!< Define Nucleus object */
+		Nucleus				GetNucleus()				{ return fNucleus;			}	/*!< Return Nucleus object */	
 
 		void	AddCorrectionFactor(TVectorD);	/*!< Add point calculation correction factors (append) */
 		void	SetCorrectionFactor(int i, TVectorD);	/*!< Define point calculation correction factors for experiment i */
@@ -129,19 +129,19 @@ class CoulExFitter {
 		double	GetTolerance()						const	{ return fitTolerance;			}	/*!< Return required tolerance */
 
 		void	SetNthreads(int n)						{ nThreads = n;				}	/*!< Define number of allowed cores */
-		int	GetNthreads()						const 	{ return nThreads;			}	/*!< Return number of allowed cores */
+		int	GetNthreads()						const		{ return nThreads;			}	/*!< Return number of allowed cores */
 	
 		void	SetVerbose(bool b = true)					{ verbose = b;				}	/*!< Define verbocity */
 		bool	GetVerbose()						const	{ return verbose;			}	/*!< Return verbocity */
 
-		void	SetPoissonUncertainties(bool b = true)				{ fUsePoisson = b;			}	/*!< Define whether to use user defined data uncertainties or to use Poisson uncertainties (and likelihood fit) 	*/
-		bool	UsePoissonUncertainties()				const	{ return fUsePoisson;			}	/*!< Return whether to use user defined data uncertainties or to use Poisson uncertainties (and likelihood fit) 	*/
+		void	SetPoissonUncertainties(bool b = true)				{ fUsePoisson = b;			}	/*!< Define whether to use user defined data uncertainties or to use Poisson uncertainties (and likelihood fit)		*/
+		bool	UsePoissonUncertainties()				const	{ return fUsePoisson;			}	/*!< Return whether to use user defined data uncertainties or to use Poisson uncertainties (and likelihood fit)		*/
 
-		TMatrixD	GetCovarianceMatrix()				const	{ return covMat;			}	/*!< Return covariance matrix from fit 	*/
-		TMatrixD	GetCorrelationMatrix()				const	{ return corMat;			}	/*!< Return correlation matrix from fit 	*/
+		TMatrixD	GetCovarianceMatrix()				const	{ return covMat;			}	/*!< Return covariance matrix from fit	*/
+		TMatrixD	GetCorrelationMatrix()				const	{ return corMat;			}	/*!< Return correlation matrix from fit		*/
 
-		void	SetDoFullUncertainty(bool b = true)				{ fDoFullUnc = b;			} 	/*!< Define whether to do a complete MINOS uncertainty analysis (slow)	*/
-		bool	DoFullUncertainty()					const	{ return fDoFullUnc;			} 	/*!< Return whether to do a complete MINOS uncertainty analysis (slow)	*/
+		void	SetDoFullUncertainty(bool b = true)				{ fDoFullUnc = b;			}		/*!< Define whether to do a complete MINOS uncertainty analysis (slow)	*/
+		bool	DoFullUncertainty()					const	{ return fDoFullUnc;			}		/*!< Return whether to do a complete MINOS uncertainty analysis (slow)	*/
 
 		void	SetLikelihoodFit(bool b = true)					{ fLikelihood = b;			}	/*!< Define whether we do a log-likelihood based fit (default: chi-squared) */
 		bool	LikelihoodFit()						const	{ return fLikelihood;			}	/*!< Return whether we do a log-likelihood based fit (default: chi-squared) */
@@ -166,7 +166,7 @@ class CoulExFitter {
 
 		std::vector<TVectorD>		correctionFactors;
 
-		std::vector<PointCoulEx>	pointCalcs;			// Point calculations
+		std::vector<PointCoulEx*>	pointCalcs;			// Point calculations
 		std::vector<ExperimentData>	exptData;			// Experimental data (one vector entry for each data subset)
 		std::vector<LitLifetime>	litLifetimes;			// Literature data, lifetimes
 		std::vector<LitBranchingRatio>	litBranchingRatios;		// Literature data, branching ratios

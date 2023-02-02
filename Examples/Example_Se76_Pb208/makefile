@@ -1,6 +1,6 @@
 LIBS = -lCygnus -lSpectrum -lTreePlayer -lMathMore
 CPP = g++
-CFLAGS = -std=c++0x `root-config --cflags --libs --glibs`
+CFLAGS = -std=c++0x `root-config --cflags --libs --glibs` -g
 INCDIR = $(shell pwd)/../../include
 LIBDIR = $(shell pwd)/../../bin
 CURDIR = $(shell pwd)

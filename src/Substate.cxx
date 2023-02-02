@@ -37,3 +37,18 @@ Substate& Substate::operator = (const Substate& ss){
 	return *this;
 
 }
+
+void Substate::SetPar(Nucleus &nuc) {
+  if(GetM() < 0){
+    int stateindex = GetStateIndex();
+    fPar = pow(-1,nuc.GetLevelP()[0]-nuc.GetLevelP()[stateindex]-nuc.GetLevelJ()[stateindex]);
+  }
+}
+
+void Substate::AddLambda(const int &i, const int &l, const double &xi, const double &psi, const double &zeta) {
+  fConnections.at(i).AddLambda(l, xi, psi, zeta);
+}
+
+void Substate::AddLambdaLast(const int &l, const double &xi, const double &psi, const double &zeta) {
+  fConnections.at(fConnections.size()-1).AddLambda(l, xi, psi, zeta);
+}

@@ -1,7 +1,7 @@
+#include <iostream>
 #include "Connection.h"
 
 Connection::Connection(const Connection& c){
-	
 	fXi.resize(c.fXi.size());
 	for(size_t i = 0; i < fXi.size(); i++)	
 		fXi[i] = c.fXi[i];
@@ -18,7 +18,6 @@ Connection::Connection(const Connection& c){
 
 }
 Connection& Connection::operator = (const Connection& c){
-
 	fXi.resize(c.fXi.size());
 	for(size_t i = 0; i < fXi.size(); i++)	
 		fXi[i] = c.fXi[i];
@@ -37,11 +36,18 @@ Connection& Connection::operator = (const Connection& c){
 
 }
 
-void Connection::AddLambda(int lambda, double xi, double psi, double zeta){
+Connection::Connection(int s, unsigned int L)	 : fConnectedState(s),
+																								 fPsi(L),
+																								 fXi(L),
+																								 fZeta(L),
+																								 fLambda(L,false)
+{ }						/*!< Define maximum multipolarity: sets the size of the vectors in the class */
+
+void Connection::AddLambda(const int &lambda, const double &xi, const double &psi, const double &zeta){
 	
 	fXi[lambda]		= xi;
 	fPsi[lambda]		= psi;
-	fZeta[lambda]	 	= zeta;
+	fZeta[lambda]		= zeta;
 	fLambda[lambda]		= true;
 
 }

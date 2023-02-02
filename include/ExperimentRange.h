@@ -79,7 +79,7 @@ class ExperimentRange {
 
 		void		SetTargetDetection(bool b)	{ targetDetection = b;	}	/*!< Define whether the target is being detected (default: beam-like detection */
 
-		TVectorD	GetIntegratedCrossSection_TVec()		const	{ return IntegratedCrossSection_TVec;	}	/*!< Return a TVectorD containing the integrated cross section over theta and energy */
+		const TVectorD&	GetIntegratedCrossSection_TVec()		const	{ return IntegratedCrossSection_TVec;	}	/*!< Return a TVectorD containing the integrated cross section over theta and energy */
 
 		double		IntegrateRutherford();				/*!< Integrate the Rutherford cross section over the angle and energy range */
 		TGraph2D*	GetRutherfordThetaEnergy();			/*!< Create a TGraph2D of the Rutherford cross section over theta (cm) and energy */
@@ -98,7 +98,7 @@ class ExperimentRange {
 		void		SetVerbose(bool b = true)				{ verbose = b;				} 	/*!< Define the verbocity of the calculations */
 
 		void		SetNthreads(int n)					{ nThreads = n;				}	/*!< Define the number of cores to be used in the integration */	
-		int		GetNthreads()					const	{ return nThreads;			}	/*!< Return the number of cores to be used in the integration */
+		const int&		GetNthreads()					const	{ return nThreads;			}	/*!< Return the number of cores to be used in the integration */
 
 		void		SetAccuracy(double acc)					{ fAccuracy = acc;			}	/*!< Define the accuracy of the calculations */
 
@@ -115,16 +115,16 @@ class ExperimentRange {
 
 		void		SetProjectileExcitation(bool b = true)			{ fProjectileExcitation = b;		} 	/*!< Determines whether the beam or target is being excited */
 
-		double		GetIntegratedRutherford()			const	{ return integratedRutherford;		}	/*!< Returns the integrated Rutherford cross section */
+		const double&		GetIntegratedRutherford()			const	{ return integratedRutherford;		}	/*!< Returns the integrated Rutherford cross section */
 
 		void		SetUseFit(bool b = true)				{ fUseFit = b;				}	/*!< Use a fit to interpolate. Default is a spline */
-		bool		UseFit()					const	{ return fUseFit;			}	/*!< Return whether using a fit to perform interpolation */
+		const bool&		UseFit()					const	{ return fUseFit;			}	/*!< Return whether using a fit to perform interpolation */
 
 		void	SetUseSymmetry(bool b = true)					{ fUseSymmetry = b;			}	/*!< Sets whether symmetry arguments can be used to speed up the calculation (default = true) */
-		bool	UseSymmetry()						const	{ return fUseSymmetry;			}	/*!< Returns whether symmetry arguments can be used to speed up the calculation */
+		const bool&	UseSymmetry()						const	{ return fUseSymmetry;			}	/*!< Returns whether symmetry arguments can be used to speed up the calculation */
                                                                                                                                                                                                                                                                                    
 		void	FixStep(bool b = true)						{ fUseFixedStep = b;			}	/*!< Set whether a fixed step (dOmega = 0.03, accuracy 1e-6) can be used - approx. equivalent to GOSIA INT,1000 */
-		bool	UseFixedStep()						const	{ return fUseFixedStep;			}	/*!< Return whether a fixed step will be used for the CoulEx calculation */                                      	
+		const bool&	UseFixedStep()						const	{ return fUseFixedStep;			}	/*!< Return whether a fixed step will be used for the CoulEx calculation */                                      	
 
 	private:
 

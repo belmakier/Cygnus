@@ -78,15 +78,19 @@ class Experiments
 		void	PrintDetails() const;						/*!<	Print the details of the experimental ranges stored within the class */
 		void	PrintPointCorrections();					/*!<	Print the correction factors as determined by PointCorrections */
 
-		ExperimentRange			GetExperimentRange(int i)	const	{ return experimentRanges.at((unsigned int)i); 			}	/*!< Returns an experimental range by index */
-		std::vector<TVectorD>		GetCorrectionFactors()		const	{ return correctionFactors;					}	/*!< Returns the vector of correction factors (TVectorD) */
-		std::vector<TVectorD>		GetPointCrossSections()		const	{ return pointCrossSections;					}	/*!< Returns the vector of point cross sections (TVectorD) */
-		std::vector<TVectorD>		GetIntegratedCrossSections()	const	{ return integratedCrossSections;				}	/*!< Returns the vector of integrated cross sections (TVectorD)*/
+		const ExperimentRange&			GetExperimentRange(int i)	const	{ return experimentRanges.at((unsigned int)i); 			}	/*!< Returns an experimental range by index */
+    ExperimentRange			GetCloneExperimentRange(int i)	const	{ return experimentRanges.at((unsigned int)i); 			}	/*!< Returns an experimental range by index */
+		const std::vector<TVectorD>&		GetCorrectionFactors()		const	{ return correctionFactors;					}	/*!< Returns the vector of correction factors (TVectorD) */
+		const std::vector<TVectorD>&		GetPointCrossSections()		const	{ return pointCrossSections;					}	/*!< Returns the vector of point cross sections (TVectorD) */
+		const std::vector<TVectorD>&		GetIntegratedCrossSections()	const	{ return integratedCrossSections;				}	/*!< Returns the vector of integrated cross sections (TVectorD)*/
 
-		PointCoulEx			GetPointCalculation(int i)	const	{ return pointCalculation.at((unsigned int)i);			}	/*!< Returns a point calculation by index */
-		std::vector<PointCoulEx>	GetPointCalculations()		const	{ return pointCalculation;					}	/*!< Returns the vector of point calculations */
+		const PointCoulEx&			GetPointCalculation(int i)	const	{ return pointCalculation.at((unsigned int)i);			}	/*!< Returns a point calculation by index */
+  PointCoulEx	*GetClonePointCalculation(int i)		const	{ return new PointCoulEx(pointCalculation.at((unsigned int)i));					}	/*!< Returns the vector of point calculations */
+		const std::vector<PointCoulEx>&	GetPointCalculations()		const	{ return pointCalculation;					}	/*!< Returns the vector of point calculations */
+    std::vector<PointCoulEx>	GetClonePointCalculations()		const	{ return pointCalculation;					}	/*!< Returns the vector of point calculations */
 
-		int				GetNexpts()			const	{ return experimentRanges.size();				}	/*!< Returns the number of experimental ranges defined */
+
+	  int				GetNexpts()			const	{ return experimentRanges.size();				}	/*!< Returns the number of experimental ranges defined */
 
 		void	SetVerbose(bool b = true)	{ verbose = b;		}										/*!< Set the verbocity of the calculation (for debugging) */
 

@@ -44,16 +44,16 @@ class Nucleus
 
 		void MultipolarityReminder() const;		/*!< Prints a reminder regarding multipolarity indexing */
 
-		int GetZ()	const		{ return nucleusZ;	}	/*!< Return nucleus proton number */
-		int GetA()	const		{ return nucleusA;	}	/*!< Return nucleus mass number	*/
+		const int& GetZ()	const		{ return nucleusZ;	}	/*!< Return nucleus proton number */
+		const int& GetA()	const		{ return nucleusA;	}	/*!< Return nucleus mass number	*/
 
-		int			GetNstates()		const	{ return nStates;		}	/*!< Return number of state */
-		int			GetMaxLambda()		const	{ return maxLambda;		}	/*!< Return maximum lambda (default = 7) */
+		const int&			GetNstates()		const	{ return nStates;		}	/*!< Return number of state */
+		const int&			GetMaxLambda()		const	{ return maxLambda;		}	/*!< Return maximum lambda (default = 7) */
 	
-		std::vector<double>	GetLevelEnergies()	const	{ return LevelEnergies;		}	/*!< Return vector of level energies */
-		std::vector<double>	GetLevelJ()		const	{ return LevelJ;		}	/*!< Return vector of level spins */
-		std::vector<int>	GetLevelP()		const	{ return LevelP;		}	/*!< Return vector of level parities */
-		std::vector<TMatrixD>	GetMatrixElements()	const	{ return MatrixElements;	}	/*!< Return vector of transition matrices (one per multipolarity) */
+		const std::vector<double>&	GetLevelEnergies()	const	{ return LevelEnergies;		}	/*!< Return vector of level energies */
+		const std::vector<double>&	GetLevelJ()		const	{ return LevelJ;		}	/*!< Return vector of level spins */
+		const std::vector<int>&	GetLevelP()		const	{ return LevelP;		}	/*!< Return vector of level parities */
+		const std::vector<TMatrixD>& GetMatrixElements()	const	{ return MatrixElements;	}	/*!< Return vector of transition matrices (one per multipolarity) */
 	
 		void			PrintNucleus()	const;		/*!< Print Nucleus information */
 		void			PrintState(int) const;		/*!< Print State information */

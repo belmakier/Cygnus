@@ -1,8 +1,9 @@
 #include "Integral.h"
 
-void ThreadTaskIntegral(PointCoulEx &p, double theta){
-
-	p.CalculatePointProbabilities(theta);	
+void ThreadTaskIntegral(PointCoulEx **pm, const std::vector<int> &mEs, const std::vector<int> &mTs, const std::vector<std::vector<double> > &tm){
+  for (int i = 0; i<mEs.size(); ++i) {
+    pm[mEs[i]*tm.at(0).size() + mTs[i]]->CalculatePointProbabilities(tm[mEs[i]][mTs[i]]);
+  }
 
 	return;
 	
@@ -159,7 +160,7 @@ void Integral::SetEnergyMeshpoint(int i, double e){
 
 }
 
-void Integral::CalculateIntegral(){
+void Integral::CalculateIntegral(){  
 
 	cmTheta.clear();	
 	meshpointCrossSections.clear();
@@ -179,7 +180,7 @@ void Integral::CalculateIntegral(){
 	//	calculations.
 
 	energymeshpoint_reaction.clear();
-	std::vector< std::vector <PointCoulEx> >	PoinMat;
+  PointCoulEx *PoinMat[energy_meshpoints.size()][theta_meshpoints.size()];
 	std::vector< std::vector <double> >		ThetaMat;
 
 	for(unsigned int mE = 0; mE < energy_meshpoints.size(); mE++){
@@ -193,20 +194,21 @@ void Integral::CalculateIntegral(){
 
 		for(unsigned int mT = 0; mT < theta_meshpoints.size(); mT++){
 			Nucleus nucl = *fNucleus;
-			PointCoulEx tmpPoint(&nucl,&energymeshpoint_reaction[mE]);
-			tmpPoint.SetUseSymmetry(fUseSymmetry);
-			tmpPoint.FixStep(fUseFixedStep);
-			tmpPoint.SetAccuracy(fAccuracy);
-			tmpPoint.SetProjectileExcitation(fProjectileExcitation);
-			tmpPoinVec.push_back(tmpPoint);
+      //create in place to avoid copying
+      PoinMat[mE][mT] = new PointCoulEx(&nucl,&energymeshpoint_reaction[mE]);
+      PoinMat[mE][mT]->SetMaxMatrix();
+		  PoinMat[mE][mT]->SetUseSymmetry(fUseSymmetry);
+		  PoinMat[mE][mT]->FixStep(fUseFixedStep);
+		  PoinMat[mE][mT]->SetAccuracy(fAccuracy);
+		  PoinMat[mE][mT]->SetProjectileExcitation(fProjectileExcitation);
 			double tmpTheta = energymeshpoint_reaction[mE].ConvertThetaLabToCm(TMath::DegToRad() * theta_meshpoints.at(mT),part) * TMath::RadToDeg();
 			tmpThetaVec.push_back(tmpTheta);
 		}
 
-		PoinMat.push_back(tmpPoinVec);
 		ThetaMat.push_back(tmpThetaVec);
 
 	}
+
 
 	std::vector<TVectorD>	tmpVector_P;
 	std::vector<TVectorD>	tmpVector_CS;	
@@ -217,38 +219,36 @@ void Integral::CalculateIntegral(){
 	if(nThreads > 1){
 
 		std::vector<std::thread> Threads;
-		Threads.resize(nThreads-1);
+		Threads.resize(nThreads);
 
-		size_t energycounter = 0;
-		size_t thetacounter = 0;
-		while(energycounter < theta_meshpoints.size()){
-			size_t activethreads = 0;
-			for(size_t t=0; t < (size_t)(nThreads-1); t++){
-				Threads[t] = std::thread(ThreadTaskIntegral, std::ref(PoinMat.at(energycounter).at(thetacounter)), ThetaMat.at(energycounter).at(thetacounter));
-				activethreads++;
-				thetacounter++;
-				if(thetacounter == theta_meshpoints.size()){
-					thetacounter = 0;
-					energycounter++;
-					if(energycounter == energy_meshpoints.size())
-						break;
-				}
-			}
-			if(energycounter < energy_meshpoints.size()){
-				ThreadTaskIntegral(std::ref(PoinMat.at(energycounter).at(thetacounter)), ThetaMat.at(energycounter).at(thetacounter));
-				thetacounter++;
-				if(thetacounter == theta_meshpoints.size()){
-					thetacounter = 0;
-					energycounter++;
-				}
-			}
-			for(size_t t=0; t < activethreads; t++)
-				Threads[t].join();
-			if(energycounter == energy_meshpoints.size())
-				break;
-		}
-		energycounter++;
-	
+    std::vector<std::vector<int> > energyIndices(nThreads);
+    std::vector<std::vector<int> > thetaIndices(nThreads);
+
+    int count(0);
+
+    // prepare list of points for each thread
+    // rather than creating and destroying a thread for each meshpoint, we pre-calculate which
+    // points will be handled by what threads, and pass them all at once
+    for (unsigned int mE = 0; mE < energy_meshpoints.size(); ++mE) {
+      for (unsigned int mT = 0; mT < theta_meshpoints.size(); ++mT) {
+        PoinMat[mE][mT]->SetThread(count%nThreads);
+        energyIndices.at(count%nThreads).push_back(mE);
+        thetaIndices.at(count%nThreads).push_back(mT);
+        ++count;
+      }
+    }
+
+    //assign each thread its calculations
+    for (size_t t = 0; t<nThreads; ++t) {
+      Threads[t] = std::thread(ThreadTaskIntegral, &PoinMat[0][0], energyIndices.at(t), thetaIndices.at(t), ThetaMat);
+    }
+
+    //wait until they are complete
+    for(size_t t=0; t < nThreads; t++) {
+      Threads[t].join();
+    }
+
+    //get all the results
 		for(unsigned int mE = 0; mE < energy_meshpoints.size(); mE++){
 
 			tmpVector_cmTheta.clear();
@@ -259,12 +259,12 @@ void Integral::CalculateIntegral(){
 
 				TVectorD tmpVec_CS;
 				TVectorD tmpVec_P;
-				tmpVec_P.ResizeTo(PoinMat.at(mE).at(mT).GetProbabilitiesVector().GetNrows());
-				tmpVec_CS.ResizeTo(PoinMat.at(mE).at(mT).GetProbabilitiesVector().GetNrows());
+				tmpVec_P.ResizeTo(PoinMat[mE][mT]->GetProbabilitiesVector().GetNrows());
+				tmpVec_CS.ResizeTo(PoinMat[mE][mT]->GetProbabilitiesVector().GetNrows());
 
-				tmpVec_P = PoinMat.at(mE).at(mT).GetProbabilitiesVector();
+				tmpVec_P = PoinMat[mE][mT]->GetProbabilitiesVector();
 
-				tmpVec_CS = PoinMat.at(mE).at(mT).GetProbabilitiesVector();
+				tmpVec_CS = PoinMat[mE][mT]->GetProbabilitiesVector();
 				//tmpVec_CS *= energymeshpoint_reaction.at(mE).RutherfordCM(ThetaMat.at(mE).at(mT));
 		
 				tmpVector_P.push_back(tmpVec_P);
@@ -273,7 +273,7 @@ void Integral::CalculateIntegral(){
 
 				index.push_back(mE);
 				track_theta.push_back(theta_meshpoints.at(mT));
-				point_calculations.push_back(PoinMat.at(mE).at(mT));
+        point_calculations.push_back(PoinMat[mE][mT]);   //store pointer instead of value to avoid copying
 
 			}
 
@@ -283,8 +283,7 @@ void Integral::CalculateIntegral(){
 	
 
 		}
-
-	}
+  }
 	else{
 		for(unsigned int mE = 0; mE < energy_meshpoints.size(); mE++){
 
@@ -292,18 +291,18 @@ void Integral::CalculateIntegral(){
 			tmpVector_CS.clear();
 			tmpVector_P.clear();
 
-			for(unsigned int mT = 0; mT < theta_meshpoints.size(); mT++){
-	
-				PoinMat.at(mE).at(mT).CalculatePointProbabilities(ThetaMat.at(mE).at(mT));
+			for(unsigned int mT = 0; mT < theta_meshpoints.size(); mT++){        
+        PoinMat[mE][mT]->SetThread(0);
+			  PoinMat[mE][mT]->CalculatePointProbabilities(ThetaMat.at(mE).at(mT));
 
 				TVectorD tmpVec_CS;
 				TVectorD tmpVec_P;
-				tmpVec_P.ResizeTo(PoinMat.at(mE).at(mT).GetProbabilitiesVector().GetNrows());
-				tmpVec_CS.ResizeTo(PoinMat.at(mE).at(mT).GetProbabilitiesVector().GetNrows());
+				tmpVec_P.ResizeTo( PoinMat[mE][mT]->GetProbabilitiesVector().GetNrows());
+				tmpVec_CS.ResizeTo(PoinMat[mE][mT]->GetProbabilitiesVector().GetNrows());
 
-				tmpVec_P = PoinMat.at(mE).at(mT).GetProbabilitiesVector();
+				tmpVec_P = PoinMat[mE][mT]->GetProbabilitiesVector();
 
-				tmpVec_CS = PoinMat.at(mE).at(mT).GetProbabilitiesVector();
+				tmpVec_CS = PoinMat[mE][mT]->GetProbabilitiesVector();
 				tmpVec_CS *= energymeshpoint_reaction.at(mE).RutherfordCM(ThetaMat.at(mE).at(mT));
 		
 				tmpVector_P.push_back(tmpVec_P);
@@ -312,7 +311,7 @@ void Integral::CalculateIntegral(){
 
 				index.push_back(mE);
 				track_theta.push_back(theta_meshpoints.at(mT));
-				point_calculations.push_back(PoinMat.at(mE).at(mT));
+        point_calculations.push_back(PoinMat[mE][mT]);  //store pointer instead of value to avoid copying
 
 			}
 
@@ -327,14 +326,14 @@ void Integral::CalculateIntegral(){
 	fTensors.resize(point_calculations.size());		
 
 	fComplete = true;
-
+  
 }
 
 std::vector<TVectorD> Integral::GetProbabilities(){
 	
 	std::vector<TVectorD>	tmpProb;
 	for(unsigned int i=0;i < point_calculations.size(); i++)
-		tmpProb.push_back(point_calculations.at(i).GetProbabilitiesVector());
+		tmpProb.push_back(point_calculations.at(i)->GetProbabilitiesVector());
 
 	return tmpProb;
 
